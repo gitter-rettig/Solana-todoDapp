@@ -19,10 +19,10 @@
         "@solana/wallet-adapter-react": "^0.15.3",
         "@solana/wallet-adapter-react-ui": "^0.9.5",
         "@solana/wallet-adapter-wallets": "^0.16.0",
-        "@solana/web3.js": "^1.36.0",
-        "next": "^13.0.0",
-        "react": "^18.2.0",
-        "react-dom": "^18.2.0",
+        "@solana/web3.js": "^1.98.2",
+        "next": "^15.3.1",
+        "react": "^19.1.0",
+        "react-dom": "^19.1.0",
         "react-hot-toast": "^2.3.0"
     },
     "devDependencies": {

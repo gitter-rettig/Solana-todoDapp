@@ -2,7 +2,7 @@ const path = require('path')
 
 /** @type {import('next').NextConfig} */
 module.exports = {
-  reactStrictMode: true,
+  reactStrictMode: false,
   //webpack5: true,
   webpack: (config) => {
     // Add fallbacks for certain Node modules
@@ -10,6 +10,11 @@ module.exports = {
       ...config.resolve.fallback,
       fs: false,
       os: false,
+      path: require.resolve('path-browserify'),
+      util: require.resolve('util/'),
+      buffer: require.resolve('buffer/'),
+      stream: require.resolve('stream-browserify'),
+      crypto: require.resolve('crypto-browserify'),
     }
 
     // Configure .mjs files to be treated as JavaScript
@@ -19,9 +24,10 @@ module.exports = {
       type: 'javascript/auto',
     })
 
-    // Custom alias for the Solana wallet adapter package
+    // Custom alias for '@' to map to the root directory
     config.resolve.alias = {
       ...config.resolve.alias,
+      '@': path.resolve(__dirname, '.'), // Add this line to resolve '@' to root
       '@solana/wallet-adapter-react': path.resolve(
         './node_modules/@solana/wallet-adapter-react'
       ),

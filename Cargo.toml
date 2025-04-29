@@ -1,4 +1,22 @@
-[workspace]
-members = [
-    "programs/*"
-]
+[package]
+name = "clever_todo"
+version = "0.1.0"
+authors = ["your-name <your-email>"]
+edition = "2018"
+
+[dependencies]
+anchor-lang = "0.31.1"  
+solana-program = "1.10.33" 
+
+[lib]
+name = "clever_todo"
+crate-type = ["cdylib"]
+path = "programs/clever-todo/src/lib.rs"
+
+
+[features]
+default = ["program"]
+program = []
+
+[profile.release]
+overflow-checks = true  

@@ -4,10 +4,10 @@ use anchor_lang::prelude::*;
 pub enum TodoError {
     #[msg("You are not authorized to perform this action.")]
     Unauthorized,
-    #[msg("Not allowed")]
+    #[msg("Not allowed.")]
     NotAllowed,
-    #[msg("Math operation overflow")]
+    #[msg("Math operation overflow.")]
     MathOverflow,
-    #[msg("Already marked")]
+    #[msg("Todo is already marked.")]
     AlreadyMarked,
 }

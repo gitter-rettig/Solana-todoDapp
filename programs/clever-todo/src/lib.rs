@@ -5,66 +5,65 @@ pub mod error;
 pub mod states;
 use crate::{constant::*, error::*, states::*};
 
-declare_id!("FHi9b593PHHVjcrvRBXjAmRd6JsHkWCoLmC8CHdkDUy3");
+declare_id!("2og7BbvrvbPjVeuULsWXKggN6gHBSim82L3X4pciucQ7");
 
 #[program]
 pub mod clever_todo {
     use super::*;
 
-    pub fn initialize_user(
-        ctx: Context<InitializeUser>
-    ) -> Result<()> {
-        // Initialize user profile with default data
+    pub fn initialize_user(ctx: Context<InitializeUser>) -> Result<()> {
+        msg!("Initializing user profile for authority: {}", ctx.accounts.authority.key());
+
         let user_profile = &mut ctx.accounts.user_profile;
         user_profile.authority = ctx.accounts.authority.key();
         user_profile.last_todo = 0;
         user_profile.todo_count = 0;
 
+        msg!("User profile initialized with authority: {}, last_todo: {}, todo_count: {}", 
+             ctx.accounts.authority.key(), user_profile.last_todo, user_profile.todo_count);
+
         Ok(())
     }
 
     pub fn add_todo(ctx: Context<AddTodo>, _content: String) -> Result<()> {
+        msg!("Adding todo for authority: {}", ctx.accounts.authority.key());
+
         let todo_account = &mut ctx.accounts.todo_account;
         let user_profile = &mut ctx.accounts.user_profile;
 
-        // Fill contents with argument
         todo_account.authority = ctx.accounts.authority.key();
         todo_account.idx = user_profile.last_todo;
-        todo_account.content = _content;
+        todo_account.content = _content.clone();
         todo_account.marked = false;
 
-        // Increase todo idx for PDA
-        user_profile.last_todo = user_profile.last_todo
-            .checked_add(1)
-            .unwrap();
+        user_profile.last_todo = user_profile.last_todo.checked_add(1).unwrap();
+        user_profile.todo_count = user_profile.todo_count.checked_add(1).unwrap();
 
-        // Increase total todo count
-        user_profile.todo_count = user_profile.todo_count
-            .checked_add(1)
-            .unwrap();
+        msg!("Todo added: idx: {}, content: {}, last_todo updated to: {}, todo_count updated to: {}",
+             todo_account.idx, _content, user_profile.last_todo, user_profile.todo_count);
 
         Ok(())
     }
 
     pub fn mark_todo(ctx: Context<MarkTodo>, todo_idx: u8) -> Result<()> {
+        msg!("Marking todo with idx: {} as complete by authority: {}", todo_idx, ctx.accounts.authority.key());
+
         let todo_account = &mut ctx.accounts.todo_account;
         require!(!todo_account.marked, TodoError::AlreadyMarked);
 
-        // Mark todo
         todo_account.marked = true;
+        msg!("Todo with idx: {} marked as complete.", todo_idx);
+
         Ok(())
     }
 
     pub fn remove_todo(ctx: Context<RemoveTodo>, todo_idx: u8) -> Result<()> {
-        // Decreate total todo count
+        msg!("Removing todo with idx: {} by authority: {}", todo_idx, ctx.accounts.authority.key());
+
         let user_profile = &mut ctx.accounts.user_profile;
-        user_profile.todo_count = user_profile.todo_count
-            .checked_sub(1)
-            .unwrap();
+        user_profile.todo_count = user_profile.todo_count.checked_sub(1).unwrap();
 
-        // No need to decrease last todo idx
-
-        // Todo PDA already closed in context
+        msg!("Todo with idx: {} removed. Updated todo_count: {}", todo_idx, user_profile.todo_count);
 
         Ok(())
     }
@@ -121,14 +120,14 @@ pub struct MarkTodo<'info> {
         mut,
         seeds = [USER_TAG, authority.key().as_ref()],
         bump,
-        has_one = authority,
+        has_one = authority
     )]
     pub user_profile: Box<Account<'info, UserProfile>>,
 
     #[account(
         mut,
         seeds = [TODO_TAG, authority.key().as_ref(), &[todo_idx].as_ref()],
-        bump,
+        bump, 
         has_one = authority,
     )]
     pub todo_account: Box<Account<'info, TodoAccount>>,
@@ -146,15 +145,15 @@ pub struct RemoveTodo<'info> {
         mut,
         seeds = [USER_TAG, authority.key().as_ref()],
         bump,
-        has_one = authority,
+        has_one = authority
     )]
     pub user_profile: Box<Account<'info, UserProfile>>,
 
     #[account(
         mut,
-        close = authority,
+        close = authority, 
         seeds = [TODO_TAG, authority.key().as_ref(), &[todo_idx].as_ref()],
-        bump,
+        bump, 
         has_one = authority,
     )]
     pub todo_account: Box<Account<'info, TodoAccount>>,
@@ -163,21 +162,4 @@ pub struct RemoveTodo<'info> {
     pub authority: Signer<'info>,
 
     pub system_program: Program<'info, System>,
-}
-
-pub fn is_zero_account(account_info: &AccountInfo) -> bool {
-    let account_data: &[u8] = &account_info.data.borrow();
-    let len = account_data.len();
-    let mut is_zero = true;
-    for i in 0..len - 1 {
-        if account_data[i] != 0 {
-            is_zero = false;
-        }
-    }
-    is_zero
-}
-
-pub fn bump(seeds: &[&[u8]], program_id: &Pubkey) -> u8 {
-    let (_found_key, bump) = Pubkey::find_program_address(seeds, program_id);
-    bump
 }

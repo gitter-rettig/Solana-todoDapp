@@ -1,10 +1,11 @@
 [features]
 seeds = false
+
 [programs.localnet]
-clever_todo = "FHi9b593PHHVjcrvRBXjAmRd6JsHkWCoLmC8CHdkDUy3"
+clever_todo = "2og7BbvrvbPjVeuULsWXKggN6gHBSim82L3X4pciucQ7"
 
 [programs.devnet]
-clever_todo = "FHi9b593PHHVjcrvRBXjAmRd6JsHkWCoLmC8CHdkDUy3"
+clever_todo = "2og7BbvrvbPjVeuULsWXKggN6gHBSim82L3X4pciucQ7"
 
 [registry]
 url = "https://anchor.projectserum.com"
